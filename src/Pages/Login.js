@@ -27,7 +27,7 @@ const Login = () => {
         if (response.status === 200) {
             if (response.data.user.verified) {
                 setSuccess('Login successful!');
-                navigator('/Welcome');
+                navigator('/');
                 localStorage.setItem("CGPA-User",JSON.stringify(response.data))
             } else {
                 setOtpSent(true);

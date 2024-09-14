@@ -3,15 +3,17 @@ import styled from 'styled-components';
 import Api from '../Api/Api'; 
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     dob: '',
-    curr_semester: '',
+    current_sem: '', // This will be updated as a number
     gender: ''
   });
+
   const navigator = useNavigate();
   const [otp, setOtp] = useState(Array(4).fill('')); // Adjusted to 4 digits
   const [otpSent, setOtpSent] = useState(false);
@@ -43,11 +45,16 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Ensure current_sem is stored as a number, and other inputs are treated as strings
     setFormData({
       ...formData,
-      [name]: value
+      [name]: name === 'current_sem' ? parseInt(value) : value,
     });
+
+    console.log('Updated Form Data:', formData); // Debug state updates
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,7 +73,7 @@ const Register = () => {
         name: formData.name,
         dob: formData.dob,
         password: formData.password,
-        curr_semester: formData.curr_semester,
+        current_sem: formData.current_sem,
         gender: formData.gender
       });
   
@@ -181,18 +188,19 @@ const Register = () => {
             required
           />
           <Select
-            name="curr_semester"
-            value={formData.curr_semester}
+            name="current_sem"
+            value={formData.current_sem || ''}
             onChange={handleChange}
             required
           >
             <option value="" disabled>Select Current Semester</option>
             {[...Array(8)].map((_, index) => (
               <option key={index + 1} value={index + 1}>
-                Semester {index + 1}
+                {index + 1}
               </option>
             ))}
           </Select>
+
           <Select
             name="gender"
             value={formData.gender}
@@ -204,7 +212,7 @@ const Register = () => {
             <option value="female">Female</option>
           </Select>
           <Button type="submit">Register</Button>
-          <p>Already register?<Link to="/login">login in</Link></p>
+          <p>Already registered? <Link to="/login">Login here</Link></p>
         </Form>
       ) : (
         <OtpForm onSubmit={handleOtpSubmit}>
@@ -261,81 +269,63 @@ const Title = styled.h1`
   margin-bottom: 20px;
   font-size: 24px;
   text-align: center;
-  color: #333;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box;
+  font-size: 16px;
 `;
 
 const Select = styled.select`
   width: 100%;
   padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box;
+  font-size: 16px;
 `;
 
 const Button = styled.button`
   width: 100%;
   padding: 10px;
+  background-color: #4CAF50;
+  color: white;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
-  color: white;
   font-size: 16px;
   cursor: pointer;
   
-  &:hover {
-    background-color: #0056b3;
-  }
-
   &:disabled {
-    background-color: #d6d6d6;
+    background-color: #cccccc;
     cursor: not-allowed;
   }
 `;
 
+const OtpContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const OtpInput = styled(Input)`
+  width: 50px;
+  text-align: center;
+`;
+
 const Error = styled.p`
   color: red;
-  font-size: 14px;
-  margin: 10px 0;
-  text-align: center;
 `;
 
 const Success = styled.p`
   color: green;
-  font-size: 14px;
-  margin: 10px 0;
-  text-align: center;
-`;
-
-const OtpContainer = styled.div`
-  display: flex;
-  justify-content: space-evenly;
-  margin: 20px 0;
-`;
-
-const OtpInput = styled.input`
-  width: 40px;
-  height: 40px;
-  text-align: center;
-  font-size: 24px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
 `;
 
 const Timer = styled.p`
   text-align: center;
-  font-size: 14px;
-  color: #666;
-  margin-top: 10px;
+  margin-top: 15px;
 `;
 
 export default Register;
