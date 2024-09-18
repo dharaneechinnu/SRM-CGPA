@@ -4,7 +4,7 @@ import Api from '../Api/Api'; // Adjust the path according to your project struc
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ Reg: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [otp, setOtp] = useState(Array(4).fill('')); // Adjusted to 4 digits
@@ -12,7 +12,8 @@ const Login = () => {
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [timer, setTimer] = useState(30); // Countdown timer in seconds
   const [timerActive, setTimerActive] = useState(false);
-  const navigator = useNavigate()
+  const navigator = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -21,36 +22,36 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await Api.post('/Auth/login', formData);
-        console.log(response); 
+      const response = await Api.post('/Auth/login', formData);
+      console.log(response);
 
-        if (response.status === 200) {
-            if (response.data.user.verified) {
-                setSuccess('Login successful!');
-                navigator('/');
-                localStorage.setItem("CGPA-User",JSON.stringify(response.data))
-            } else {
-                setOtpSent(true);
-                setShowOtpForm(true);
-                setSuccess('Your email is not verified. Please enter the OTP sent to your email.');
-                handleGenerateOtp();
-            }
+      if (response.status === 200) {
+        if (response.data.user.verified) {
+          setSuccess('Login successful!');
+          navigator('/Main');
+          localStorage.setItem('CGPA-User', JSON.stringify(response.data));
         } else {
-            setError(response.data.message || 'Login failed');
+          setOtpSent(true);
+          setShowOtpForm(true);
+          setSuccess('Your email is not verified. Please enter the OTP sent to your email.');
+          handleGenerateOtp();
         }
+      } else {
+        setError(response.data.message || 'Login failed');
+      }
     } catch (error) {
-        console.error('Error during login:', error);
-        setError('An error occurred during login');
+      console.error('Error during login:', error);
+      setError('An error occurred during login');
     }
-};
+  };
 
   const handleGenerateOtp = async () => {
     try {
-      await Api.post('/Auth/generate-otp', { email: formData.email });
-      alert("OTP sent");
-      startTimer(); 
+      await Api.post('/Auth/generate-otp', { Reg: formData.Reg });
+      alert('OTP sent');
+      startTimer();
     } catch (error) {
-      console.error("Error generating OTP:", error);
+      console.error('Error generating OTP:', error);
       setError('An error occurred while generating OTP');
     }
   };
@@ -62,10 +63,8 @@ const Login = () => {
       newOtp[index] = value;
       setOtp(newOtp);
 
-     
       if (value.length === 1 && index < otp.length - 1) {
         document.getElementById(`otp-input-${index + 1}`).focus();
-        
       }
     }
   };
@@ -74,22 +73,22 @@ const Login = () => {
     e.preventDefault();
     const otpCode = otp.join('');
     try {
-      const response = await Api.post('/Auth/verify-otp', { email: formData.email, otp: otpCode });
+      const response = await Api.post('/Auth/verify-otp', { Reg: formData.Reg, otp: otpCode });
 
       if (response.status === 200) {
         setSuccess('Email verified successfully!');
-        navigator('/Welcome');
+        navigator('/Login');
       } else {
         setError(response.data.message || 'Invalid OTP');
       }
     } catch (error) {
-      console.error("Error during OTP verification:", error);
+      console.error('Error during OTP verification:', error);
       setError('An error occurred during OTP verification');
     }
   };
 
   const startTimer = () => {
-    setTimer(30); 
+    setTimer(30); // Reset timer to 30 seconds
     setTimerActive(true);
   };
 
@@ -97,12 +96,12 @@ const Login = () => {
     let countdown;
     if (timerActive && timer > 0) {
       countdown = setInterval(() => {
-        setTimer(prev => prev - 1);
+        setTimer((prev) => prev - 1);
       }, 1000);
     } else if (timer === 0) {
       clearInterval(countdown);
-      handleGenerateOtp(); 
-      setTimer(30); 
+      handleGenerateOtp(); // Resend OTP after the timer expires
+      setTimer(30); // Reset timer after OTP is resent
     }
     return () => clearInterval(countdown);
   }, [timer, timerActive]);
@@ -115,10 +114,10 @@ const Login = () => {
           {error && <Error>{error}</Error>}
           {success && <Success>{success}</Success>}
           <Input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
+            type="text"
+            name="Reg"
+            placeholder="Enter your Registration Number"
+            value={formData.Reg}
             onChange={handleChange}
             required
           />
@@ -131,8 +130,10 @@ const Login = () => {
             required
           />
           <Button type="submit">Login</Button>
-          <Link to="/Forgot-Password">Forgot Password</Link>
-          <Link to="/Register">Register</Link>
+          <Linker>
+            <Link to="/Forgot-Password">Forgot Password</Link>
+            <Link to="/Register">Register</Link>
+          </Linker>
         </Form>
       ) : (
         <OtpForm onSubmit={handleOtpSubmit}>
@@ -154,7 +155,7 @@ const Login = () => {
           </OtpContainer>
           <Button type="submit">Verify OTP</Button>
           <Timer>
-            {timerActive ? `Resend OTP in ${timer} seconds` : "You can resend OTP now."}
+            {timerActive ? `Resend OTP in ${timer} seconds` : 'You can resend OTP now.'}
           </Timer>
           <Button type="button" onClick={startTimer} disabled={timerActive}>
             Resend OTP
@@ -165,20 +166,20 @@ const Login = () => {
   );
 };
 
-// Styled components
 const FormContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: black;
+  color: white;
 `;
 
 const Form = styled.form`
   background: #ffffff;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
   width: 100%;
   max-width: 400px;
 `;
@@ -221,6 +222,11 @@ const Error = styled.p`
   font-size: 14px;
   margin: 10px 0;
   text-align: center;
+`;
+
+const Linker = styled.p`
+  display: flex;
+  gap: 1rem;
 `;
 
 const Success = styled.p`

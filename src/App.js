@@ -1,28 +1,25 @@
-import './App.css';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Welcome from './Pages/Welcome';  // Ensure correct path and case sensitivity
 import Login from './Pages/Login';
 import Register from './Pages/Register';
-import Welcome from './Pages/Welcome'
 import ForgotPassword from './Pages/ForgotPassword';
-import Home from './Pages/Home';
-import Main from './Compontens/Main';
-
-function App() {
+import Mpage from './Pages/Mpage';
+import NotStoreCgpa from './Pages/NotStoreCgpa';
+const App = () => {
   return (
-   <>
-      <Router>
-    <Routes>
-       <Route path='/' element={<Main/>} />
-       <Route path='/welcome' element={<Welcome/>} />
-       <Route path='/Login' element={<Login/>} />
-       <Route path= '/Register' element={<Register/>} />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Welcome />} />
+        <Route path="/cgpa" element={<NotStoreCgpa />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path= '/Register' element={<Register/>} />
        <Route path= '/Forgot-Password' element={<ForgotPassword/>} />
-       <Route path= '/Forgot-Password' element={<ForgotPassword/>} />
-  
-    </Routes>
-  </Router>
-   </>
+       <Route path= '/Main' element={<Mpage/>} />
+      
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

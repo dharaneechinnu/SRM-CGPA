@@ -8,6 +8,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    Reg:'',
     password: '',
     dob: '',
     current_sem: '', // This will be updated as a number
@@ -70,6 +71,7 @@ const Register = () => {
       // Send form data to the API
       const response = await Api.post('/Auth/register', {
         email: formData.email,
+        Reg: formData.Reg,
         name: formData.name,
         dob: formData.dob,
         password: formData.password,
@@ -172,6 +174,15 @@ const Register = () => {
             required
           />
           <Input
+  type="text"
+  name="Reg" // Corrected name attribute
+  placeholder="Enter your Registration Number"
+  value={formData.Reg}
+  onChange={handleChange}
+  required
+/>
+
+          <Input
             type="password"
             name="password"
             placeholder="Password"
@@ -251,7 +262,9 @@ const FormContainer = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: black;
+  color: black;
+  padding: 0 10px; // Added padding to prevent content from touching edges
 `;
 
 const Form = styled.form`
@@ -260,14 +273,16 @@ const Form = styled.form`
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 500px; // Increased max-width for better visibility on larger screens
+  margin: 20px;
+  box-sizing: border-box; // Ensures padding and border are included in the element's total width and height
 `;
 
 const OtpForm = styled(Form)``;
 
 const Title = styled.h1`
   margin-bottom: 20px;
-  font-size: 24px;
+  font-size: 1.5rem; // Adjusted font size for better scalability
   text-align: center;
 `;
 
@@ -277,7 +292,8 @@ const Input = styled.input`
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1rem; // Adjusted font size
+  box-sizing: border-box; // Ensures padding and border are included in the element's total width and height
 `;
 
 const Select = styled.select`
@@ -286,7 +302,8 @@ const Select = styled.select`
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1rem; // Adjusted font size
+  box-sizing: border-box;
 `;
 
 const Button = styled.button`
@@ -296,9 +313,10 @@ const Button = styled.button`
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1rem; // Adjusted font size
   cursor: pointer;
-  
+  margin-top: 10px; // Added margin for spacing
+
   &:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
@@ -308,6 +326,7 @@ const Button = styled.button`
 const OtpContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-bottom: 15px; // Added margin for spacing
 `;
 
 const OtpInput = styled(Input)`
@@ -317,15 +336,18 @@ const OtpInput = styled(Input)`
 
 const Error = styled.p`
   color: red;
+  text-align: center; // Centered text
 `;
 
 const Success = styled.p`
   color: green;
+  text-align: center; // Centered text
 `;
 
 const Timer = styled.p`
   text-align: center;
   margin-top: 15px;
+  font-size: 0.875rem; // Adjusted font size
 `;
 
 export default Register;

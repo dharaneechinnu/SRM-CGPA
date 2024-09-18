@@ -2,16 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import "@fontsource/poppins";
-import { FaRegUserCircle } from "react-icons/fa";
 
 const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const sidebarRef = useRef();
   const navigate = useNavigate();
-
-  // Check if the user is logged in
-  const isLoggedIn = Boolean(localStorage.getItem('CGPA-User')); // Assuming 'user' is the key in localStorage for user info
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -51,61 +47,43 @@ const Nav = () => {
     };
   }, []);
 
-  const handleLinkClick = (e) => {
-    e.preventDefault();
-    const targetId = e.currentTarget.getAttribute('href').substring(1);
-    const targetElement = document.getElementById(targetId);
-    if (targetElement) {
-      const offsetTop = targetElement.getBoundingClientRect().top + window.pageYOffset - 1;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth',
-      });
-      setIsOpen(false);
-    }
-  };
-
   const handleLogout = () => {
-    // Clear local storage and update login state
-    localStorage.clear();
-    navigate('/login'); // Redirect to the login page after logout
+    localStorage.removeItem('CGPA-User'); // Remove user info from local storage
+    navigate('/Login'); // Redirect to the login page
   };
 
   return (
     <Container scrolled={scrolled}>
+      <Sidebar ref={sidebarRef} isOpen={isOpen}>
+        <SidebarContent>
+          <SidebarTitle>CGPA</SidebarTitle>
+          <StyledLink to="/" onClick={toggleSidebar}>Home</StyledLink>
+          <StyledLink to="/target" onClick={toggleSidebar}>Target</StyledLink>
+          <StyledLink to="/analysis" onClick={toggleSidebar}>Analysis</StyledLink>
+          <StyledLink to="/Login" onClick={handleLogout}>Logout</StyledLink>
+        </SidebarContent>
+      </Sidebar>
+      
       <MainContent>
         <NavSection>
           <Logo>
-            <h2 href="#home" onClick={handleLinkClick}><span>CGPA</span></h2>
+            <h2><span>CGPA</span></h2>
           </Logo>
           <NavLinks>
-           
-            
-            {/* Show Logout and Profile if logged in, otherwise show Login and Register */}
-            {isLoggedIn ? (
-              <>
-               <NavLink href="#home" onClick={handleLinkClick}>Home</NavLink>
-            <NavLink href="#progress" onClick={handleLinkClick}>Target</NavLink>
-            <NavLink href="#stage" onClick={handleLinkClick}>Analysis</NavLink>
-                <NavLink href="#" onClick={handleLogout}>Logout</NavLink>
-                <FaRegUserCircle className="user" />
-              </>
-            ) : (
-              <>
-                <NavLink as={Link} to="/login">Login</NavLink>
-                <NavLink as={Link} to="/register">Register</NavLink>
-              </>
-            )}
+            <StyledLink to="/">Home</StyledLink>
+            <StyledLink to="/target">Target</StyledLink>
+            <StyledLink to="/analysis">Analysis</StyledLink>
+            <StyledLink to="/Login" onClick={handleLogout}>Logout</StyledLink>
           </NavLinks>
         </NavSection>
         <ToggleButton onClick={toggleSidebar}>
           {isOpen ? (
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="Close--Streamline-Ultimate.svg" height="24" width="24">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" height="24" width="24">
               <path d="m0.75 23.249 22.5 -22.5" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
               <path d="M23.25 23.249 0.75 0.749" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Ascending-Sort-1--Streamline-Ultimate.svg" height="24" width="24">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="24" width="24">
               <path stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M0.75 18.8999h7.3" stroke-width="1.5"></path>
               <path stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M0.75 12h14.8" stroke-width="1.5"></path>
               <path stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M0.75 5.1001h22.5" stroke-width="1.5"></path>
@@ -115,52 +93,63 @@ const Nav = () => {
       </MainContent>
 
       {isOpen && <Backdrop onClick={toggleSidebar} />}
-
-      <Sidebar ref={sidebarRef} isOpen={isOpen}>
-        <SidebarContent>
-         
-
-          {isLoggedIn ? (
-            <>
-             <SidebarLink href="#home" onClick={handleLinkClick}>Home</SidebarLink>
-          <SidebarLink href="#progress" onClick={handleLinkClick}>Target</SidebarLink>
-          <SidebarLink href="#stage" onClick={handleLinkClick}>Analysis</SidebarLink>
-              <SidebarLink href="#" onClick={handleLogout}>Logout</SidebarLink>
-              <FaRegUserCircle className="user" />
-            </>
-          ) : (
-            <>
-              <SidebarLink as={Link} to="/login">Login</SidebarLink>
-              <SidebarLink as={Link} to="/register">Register</SidebarLink>
-            </>
-          )}
-        </SidebarContent>
-      </Sidebar>
     </Container>
   );
 };
 
 const Container = styled.div`
-  width: 100vw;
-  height: 70px;
-  background-color: white;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: ${({ scrolled }) => (scrolled ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none')};
+  height: 100vh;
+`;
+
+const Sidebar = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  width: 250px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  opacity: 0.95;
+  transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-250px)')};
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+
+  @media screen and (min-width: 769px) {
+    transform: translateX(0);
+    position: static;
+    width: 250px;
+  }
 `;
 
-const MainContent = styled.main`
-  width: 100vw;
+const SidebarTitle = styled.h1`
+  font-family: poppins;
+  font-size: 24px;
+  color: black;
+  margin: 20px;
+`;
+
+const SidebarContent = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  gap: 20px;
+`;
+
+const MainContent = styled.div`
   flex: 1;
+  margin-left: 250px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+    margin-left: 0;
+  }
 `;
 
 const NavSection = styled.nav`
@@ -173,7 +162,7 @@ const NavSection = styled.nav`
 const Logo = styled.h1`
   color: black;
   margin: 0;
-  margin-left:20px;
+  margin-left: 20px;
 
   h2 {
     font-family: poppins;
@@ -193,24 +182,11 @@ const NavLinks = styled.div`
   display: flex;
   gap: 20px;
   margin-left: auto;
-  margin-right:40px;
-  margin-top:12px;
-  .user{
-    font-size: 2rem;
-  }
+  margin-right: 40px;
+  margin-top: 12px;
+
   @media screen and (max-width: 768px) {
     display: none;
-  }
-`;
-
-const NavLink = styled.a`
-  color: black;
-  text-decoration: none;
-  font-size: 1rem;
-  font-family: poppins;
-
-  &:hover {
-    color: #1EAAF1;
   }
 `;
 
@@ -232,51 +208,9 @@ const ToggleButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
   margin-right: 30px;
-    
-  @media screen and (min-width: 769px) {
-    display: none;
-  }
-`;
-
-const Sidebar = styled.div`
-  position: fixed;
-  top: 60px;
-  right: 0;
-  width: 250px;
-  height: calc(100vh - 60px);
-  display: flex;
-  flex-direction: column;
-  background-color: #f9f9f9;
-  opacity: 0.95;
-  transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(100%)')};
-  transition: transform 0.3s ease-in-out;
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
 
   @media screen and (min-width: 769px) {
     display: none;
-  }
-`;
-
-const SidebarContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 20px;
-  gap: 40px;
-  
-`;
-
-const SidebarLink = styled.a`
-  color: black;
-  text-decoration: none;
-  padding: 10px 0;
-  font-size: 1.2rem;
-  .user{
-    font-size: 1.5rem;
-  }
-  &:hover {
-    text-decoration: none;
   }
 `;
 
