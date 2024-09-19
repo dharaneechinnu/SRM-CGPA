@@ -38,7 +38,7 @@ const Home = () => {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('CGPA-User');
-    window.location.href = '/login'; // Redirect to login page
+    window.location.href = '/'; // Redirect to login page
   };
 
   // Handle edit button click

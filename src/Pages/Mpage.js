@@ -14,7 +14,7 @@ const Mpage = () => {
     const isLoggedIn = Boolean(localStorage.getItem('CGPA-User'));
 
     if (!isLoggedIn) {
-      navigate('/Login');
+      navigate('/');
     }
   }, [navigate]);
 
