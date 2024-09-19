@@ -4,11 +4,14 @@ import styled from 'styled-components';
 import Home from './Home';
 import CalCpga from './CalCpga';
 import Target from './Target';
-
+import Tracker from './Tracker';
+import CertificateUpload from './CertificateUpload';
+import ResumeUpload from './ResumeUpload';
 
 const Mpage = () => {
   const navigate = useNavigate();
   const [content, setContent] = useState('home'); // State to manage displayed content
+  const [showWelcome, setShowWelcome] = useState(true); // State to manage the welcome message
 
   useEffect(() => {
     const isLoggedIn = Boolean(localStorage.getItem('CGPA-User'));
@@ -20,6 +23,7 @@ const Mpage = () => {
 
   const handleNavClick = (page) => {
     setContent(page);
+    setShowWelcome(false); // Hide welcome message when navigating
   };
 
   return (
@@ -29,20 +33,29 @@ const Mpage = () => {
         <NavLink onClick={() => handleNavClick('0')}>Home</NavLink>
         <NavLink onClick={() => handleNavClick('1')}>Calculated CGPA</NavLink>
         <NavLink onClick={() => handleNavClick('2')}>Target</NavLink>
-        <NavLink onClick={() => handleNavClick('3')}>Leave Apply</NavLink>
+        <NavLink onClick={() => handleNavClick('3')}>Tracker</NavLink>
         <NavLink onClick={() => handleNavClick('4')}>Certificated</NavLink>
         <NavLink onClick={() => handleNavClick('5')}>Resumes</NavLink>
-        
       </Nav>
       <ContentContainer>
-       {content === "0" && <Home/>}
-       {content === "1" && <CalCpga/>}
-       {content === "2" && <Target/>}
+        {showWelcome && (
+          <WelcomeContainer>
+            <WelcomeTitle>Welcome to the CGPA Portal!</WelcomeTitle>
+            <WelcomeSlogan>Your gateway to academic success.</WelcomeSlogan>
+          </WelcomeContainer>
+        )}
+        {content === "0" && <Home />}
+        {content === "1" && <CalCpga />}
+        {content === "2" && <Target />}
+        {content === "3" && <Tracker />}
+        {content === "4" && <CertificateUpload />}
+        {content === "5" && <ResumeUpload />}
       </ContentContainer>
     </Container>
   );
 };
 
+// Styled Components
 const Container = styled.div`
   display: flex;
   height: 100vh;
@@ -85,4 +98,21 @@ const ContentContainer = styled.div`
   width: 100%;
 `;
 
+const WelcomeContainer = styled.div`
+  text-align: center;
+  margin: 20px;
+`;
+
+const WelcomeTitle = styled.h2`
+  font-size: 28px;
+  color: #007bff;
+  margin-bottom: 10px;
+`;
+
+const WelcomeSlogan = styled.p`
+  font-size: 18px;
+  color: #555;
+`;
+
 export default Mpage;
+  

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import Api from '../Api/Api'; // Ensure you have the Api module for API calls'
+import Api from '../Api/Api'; // Ensure you have the Api module for API calls
 import styled from 'styled-components';
 
 // Register chart components
@@ -21,17 +21,18 @@ const Target = () => {
   useEffect(() => {
     const fetchSemesterData = async () => {
       try {
-        const response = await Api.get(`/api/sgpa/${reg}`); // Replace YOUR_REG_NUMBER with actual reg number or dynamic value
+        const response = await Api.get(`/api/sgpa/${reg}`);
         if (response.status === 200) {
-          const data = response.data.sgpas || []; // Ensure sgpas is an array
+          const data = response.data.sgpas || [];
+          console.log('Fetched semester data:', data); // Debugging
           setSemesterData(data);
         } else {
           console.error('Failed to fetch semester data:', response.status);
-          setSemesterData([]); // Fallback to an empty array
+          setSemesterData([]);
         }
       } catch (error) {
         console.error('Error fetching semester data:', error);
-        setSemesterData([]); // Fallback to an empty array
+        setSemesterData([]);
       }
     };
 
@@ -44,7 +45,7 @@ const Target = () => {
 
   const handleSetTarget = async () => {
     try {
-      const response = await Api.post('/api/set-target', { targetCgpa,reg });
+      const response = await Api.post('/api/set-target', { targetCgpa, reg });
       if (response.status === 200) {
         setIsTargetSet(true);
         alert('Target CGPA set successfully');

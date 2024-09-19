@@ -103,8 +103,8 @@ const Container = styled.div`
   max-width: 800px;
   margin: 50px auto;
   padding: 20px;
-  background-color: black;
-  color: white;
+  
+  color: black;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -117,7 +117,7 @@ const Container = styled.div`
 
 const Title = styled.h2`
   font-family: 'Poppins', sans-serif;
-  color: #fff;
+  color: black;
   margin-bottom: 20px;
   font-size: 1.8rem;
 

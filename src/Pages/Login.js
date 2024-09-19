@@ -171,7 +171,7 @@ const FormContainer = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: black;
+ 
   color: white;
 `;
 

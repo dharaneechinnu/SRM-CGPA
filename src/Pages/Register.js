@@ -262,7 +262,7 @@ const FormContainer = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: black;
+ 
   color: black;
   padding: 0 10px; // Added padding to prevent content from touching edges
 `;

@@ -66,7 +66,7 @@ const Welcome = () => {
   useEffect(() => {
     const token = localStorage.getItem('CGPA-User');
     if (!token) {
-      navigate('/login');
+      navigate('/');
     }
   }, [navigate]);
 
