@@ -18,6 +18,7 @@ const CalCpga = () => {
   const [cgpa, setCgpa] = useState(null);
   const [semester, setSemester] = useState('');
   const [sgpa, setSgpa] = useState(null);
+  const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
   // Handle adding new course input fields
   const handleAddCourse = () => {
@@ -59,37 +60,34 @@ const CalCpga = () => {
     if (totalCredits > 0) {
       const sgpaResult = totalPoints / totalCredits;
       setSgpa(sgpaResult.toFixed(2)); // Display SGPA with 2 decimal places
-      // Save SGPA to backend
-      saveSGPA(sgpaResult);
+      setIsConfirmVisible(true); // Show confirmation
     } else {
       setSgpa(null);
     }
   };
 
- 
-  const saveSGPA = async (sgpa) => {
+  // Save SGPA to backend after user confirmation
+  const saveSGPA = async () => {
     try {
       const response = await Api.post('/api/sgpa', { semester, sgpa, reg }); 
-      if (response.status === 201) {
+      if (response.status === 200) {
         alert(response.data.message);
-      }
-       else {
-        fetchCGPA();
+        fetchCGPA(); 
+      } else {
+        console.error('Failed to save SGPA');
       }
     } catch (error) {
-        alert(error);
       console.error('Error saving SGPA:', error);
+    } finally {
+      setIsConfirmVisible(false); // Hide confirmation after save
     }
   };
 
- 
   const fetchCGPA = async () => {
     try {
-      const reg = parsedUser?.user?.Reg; // Ensure this is defined correctly
-      const response = await Api.get(`/api/cgpa/${reg}`); // Correctly include reg in the URL
-  
+      const response = await Api.get(`/api/cgpa/${reg}`);
       if (response.status === 200) {
-        setCgpa(response.data.cgpa.toFixed(2)); // Use response.data to access the actual data
+        setCgpa(response.data.cgpa.toFixed(2)); // Set CGPA
       } else {
         console.error('Failed to fetch CGPA:', response.status);
       }
@@ -97,7 +95,6 @@ const CalCpga = () => {
       console.error('Error fetching CGPA:', error);
     }
   };
-  
 
   return (
     <Container>
@@ -148,6 +145,13 @@ const CalCpga = () => {
         <Result>
           Your CGPA is: <strong>{cgpa}</strong>
         </Result>
+      )}
+      {isConfirmVisible && (
+        <ConfirmContainer>
+          <p>Do you want to save this SGPA?</p>
+          <ConfirmButton onClick={saveSGPA}>Yes, Save</ConfirmButton>
+          <CancelButton onClick={() => setIsConfirmVisible(false)}>No, Cancel</CancelButton>
+        </ConfirmContainer>
       )}
     </Container>
   );
@@ -282,20 +286,49 @@ const RemoveButton = styled.button`
   background-color: #e74c3c;
   color: white;
   border: none;
-  padding: 10px 15px;
-  font-size: 14px;
+  padding: 10px;
+  font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s ease;
 
   &:hover {
     background-color: #c0392b;
   }
 `;
 
-const Result = styled.div`
+const Result = styled.p`
+  font-size: 18px;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
   margin-top: 20px;
-  font-size: 1.2rem;
-  color: black;
+`;
+
+const ConfirmContainer = styled.div`
+  margin-top: 20px;
+`;
+
+const ConfirmButton = styled.button`
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background-color: #27ae60;
+  }
+`;
+
+const CancelButton = styled(ConfirmButton)`
+  background-color: #e74c3c;
+
+  &:hover {
+    background-color: #c0392b;
+  }
 `;
 
 export default CalCpga;

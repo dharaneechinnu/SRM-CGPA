@@ -17,34 +17,47 @@ const Tracker = () => {
   const reg = parsedUser?.user?.Reg;
 
   const totalSemesters = 8; // Total number of semesters
-  const futureSemesters = totalSemesters - (semesterData.length || 0); // Calculate future semesters dynamically
+  const futureSemesters = totalSemesters - (semesterData?.length || 0); // Calculate future semesters dynamically
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const sgpaResponse = await Api.get(`/api/sgpas/${reg}`);
         console.log('SGPA Response:', sgpaResponse.data);
-        if (sgpaResponse.status === 200) {
-          setSemesterData(sgpaResponse.data || []);
+        
+        // Check if response contains an array under the 'sgpas' property
+        if (sgpaResponse.status === 200 && Array.isArray(sgpaResponse.data.sgpas)) {
+          setSemesterData(sgpaResponse.data.sgpas); // Set the correct property
         } else {
           console.error('Failed to fetch SGPA data:', sgpaResponse.status);
+          setSemesterData([]); // Reset to empty array if data is invalid
         }
-
+  
         const targetResponse = await Api.get(`/api/target-cgpa/${reg}`);
         console.log('Target Response:', targetResponse.data);
-        if (targetResponse.status === 200) {
-          setTargetCgpa(targetResponse.data.targetCgpa || null);
+        
+        if (targetResponse.status === 200 && targetResponse.data) {
+          const { targetCgpa } = targetResponse.data;
+          if (typeof targetCgpa === 'number') {
+            setTargetCgpa(targetCgpa);
+          } else {
+            console.error('Invalid target CGPA:', targetCgpa);
+            setTargetCgpa(null);
+          }
         } else {
           console.error('Failed to fetch target CGPA:', targetResponse.status);
+          setTargetCgpa(null); // Reset to null if there's an error
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setSemesterData([]); // Reset on error
+        setTargetCgpa(null); // Reset target CGPA on error
       }
     };
-
+  
     fetchData();
   }, [reg]);
-
+  
   useEffect(() => {
     const calculateRequiredSgpas = () => {
       console.log('Semester Data:', semesterData);
@@ -57,14 +70,14 @@ const Tracker = () => {
         const requiredCgpa = parseFloat(targetCgpa);
         const requiredSgpaTotal = (requiredCgpa * totalSemesters) - (currentCgpa * currentSemesters);
 
-        const futureSgpas = Array(futureSemesters).fill(requiredSgpaTotal / futureSemesters);
+        const futureSgpas = futureSemesters > 0 ? Array(futureSemesters).fill(requiredSgpaTotal / futureSemesters) : [];
 
         setRequiredSgpas(futureSgpas);
       }
     };
 
     calculateRequiredSgpas();
-  }, [targetCgpa, semesterData]);
+  }, [targetCgpa, semesterData, futureSemesters]);
 
   const chartData = {
     labels: [
