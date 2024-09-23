@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Api from '../Api/Api'; 
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    Reg:'',
+    Reg: '',
     password: '',
     dob: '',
-    current_sem: '', // This will be updated as a number
+    current_sem: '',
+    year: '',
+    section: '',
     gender: ''
   });
 
   const navigator = useNavigate();
-  const [otp, setOtp] = useState(Array(4).fill('')); // Adjusted to 4 digits
+  const [otp, setOtp] = useState(Array(4).fill(''));
   const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [timer, setTimer] = useState(30); // Countdown timer in seconds
+  const [timer, setTimer] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
-  
-  // Handles countdown and calls handleGenerateOtp
+
   useEffect(() => {
     let countdown;
     if (timerActive && timer > 0) {
@@ -32,34 +32,27 @@ const Register = () => {
       }, 1000);
     } else if (timer === 0) {
       clearInterval(countdown);
-      handleGenerateOtp(); // Generate OTP when timer runs out
-      setTimer(30); // Reset timer to 30 seconds for the next cycle
+      handleGenerateOtp();
+      setTimer(30);
     }
     return () => clearInterval(countdown);
   }, [timer, timerActive]);
 
-  // Resets the timer and starts it
   const startTimer = () => {
-    setTimer(30); // Reset timer to 30 seconds
+    setTimer(30);
     setTimerActive(true);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Ensure current_sem is stored as a number, and other inputs are treated as strings
     setFormData({
       ...formData,
-      [name]: name === 'current_sem' ? parseInt(value) : value,
+      [name]: name === 'current_sem' || name === 'year' ? parseInt(value) : value,
     });
-
-    console.log('Updated Form Data:', formData); // Debug state updates
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
     try {
       if (!validateEmail(formData.email)) {
         setError("Please enter a valid SRM email address ending with @srmist.edu.in");
@@ -68,34 +61,18 @@ const Register = () => {
   
       setError('');
   
-      // Send form data to the API
-      const response = await Api.post('/Auth/register', {
-        email: formData.email,
-        Reg: formData.Reg,
-        name: formData.name,
-        dob: formData.dob,
-        password: formData.password,
-        current_sem: formData.current_sem,
-        gender: formData.gender
-      });
+      const response = await Api.post('/Auth/register', formData);
   
       if (response.status === 200) {
         setOtpSent(true);
         setSuccess('Registration successful! An OTP has been sent to your email. Please enter the OTP to verify your email.');
-        console.log('Registration successful:', response.data);
-
-        // Generate OTP immediately after successful registration
         handleGenerateOtp();
-
-        // Start the countdown timer
         startTimer();
-       
       } else {
         setError(response.data.message || 'An error occurred during registration');
       }
   
     } catch (error) {
-      console.error("Error during form submission:", error.response ? error.response.data : error.message);
       setError('An error occurred during registration');
     }
   };
@@ -105,19 +82,16 @@ const Register = () => {
       await Api.post('/Auth/generate-otp', { email: formData.email });
       alert("OTP sent");
     } catch (error) {
-      console.error("Error generating OTP:", error);
       setError('An error occurred while generating OTP');
     }
   };
 
   const handleOtpChange = (e, index) => {
     const { value } = e.target;
-    if (/^\d?$/.test(value)) { // Allow only single digit input
+    if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
-
-      // Move focus to next input
       if (value.length === 1 && index < otp.length - 1) {
         document.getElementById(`otp-input-${index + 1}`).focus();
       }
@@ -127,20 +101,17 @@ const Register = () => {
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
     const otpCode = otp.join('');
-    console.log(formData);
     try {
       const response = await Api.post('/Auth/verify-otp', { email: formData.email, otp: otpCode });
 
       if (response.status === 200) {
         setSuccess('Email verified successfully!');
-        console.log('OTP verification successful:', response.data);
         navigator('/login');
       } else {
         setError(response.data.message || 'Invalid OTP');
       }
 
     } catch (error) {
-      console.error("Error during OTP verification:", error);
       setError('An error occurred during OTP verification');
     }
   };
@@ -157,67 +128,33 @@ const Register = () => {
           <Title>Register</Title>
           {error && <Error>{error}</Error>}
           {success && <Success>{success}</Success>}
-          <Input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <Input
-  type="text"
-  name="Reg" // Corrected name attribute
-  placeholder="Enter your Registration Number"
-  value={formData.Reg}
-  onChange={handleChange}
-  required
-/>
-
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            type="date"
-            name="dob"
-            placeholder="Date of Birth"
-            value={formData.dob}
-            onChange={handleChange}
-            required
-          />
-          <Select
-            name="current_sem"
-            value={formData.current_sem || ''}
-            onChange={handleChange}
-            required
-          >
+          <Input type="text" name="name" placeholder="Name" value={formData.name} onChange={handleChange} required />
+          <Input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
+          <Input type="text" name="Reg" placeholder="Registration Number" value={formData.Reg} onChange={handleChange} required />
+          <Input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+          <Input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
+          <Select name="current_sem" value={formData.current_sem || ''} onChange={handleChange} required>
             <option value="" disabled>Select Current Semester</option>
             {[...Array(8)].map((_, index) => (
-              <option key={index + 1} value={index + 1}>
-                {index + 1}
-              </option>
+              <option key={index + 1} value={index + 1}>{index + 1}</option>
             ))}
           </Select>
+          <Select name="year" value={formData.year || ''} onChange={handleChange} required>
+            <option value="" disabled>Select Year</option>
+            {[...Array(4)].map((_, index) => (
+              <option key={index + 1} value={index + 1}>{index + 1}</option>
+            ))}
+          </Select>
+          <Select name="section" value={formData.section} onChange={handleChange} required>
+  <option value="" disabled>Select Section</option>
+  {[...Array(26)].map((_, index) => (
+    <option key={String.fromCharCode(65 + index)} value={String.fromCharCode(65 + index)}>
+      {String.fromCharCode(65 + index)}
+    </option>
+  ))}
+</Select>
 
-          <Select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            required
-          >
+          <Select name="gender" value={formData.gender} onChange={handleChange} required>
             <option value="" disabled>Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -262,9 +199,8 @@ const FormContainer = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
- 
   color: black;
-  padding: 0 10px; // Added padding to prevent content from touching edges
+  padding: 0 10px;
 `;
 
 const Form = styled.form`
@@ -273,16 +209,16 @@ const Form = styled.form`
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 500px; // Increased max-width for better visibility on larger screens
+  max-width: 500px;
   margin: 20px;
-  box-sizing: border-box; // Ensures padding and border are included in the element's total width and height
+  box-sizing: border-box;
 `;
 
 const OtpForm = styled(Form)``;
 
 const Title = styled.h1`
   margin-bottom: 20px;
-  font-size: 1.5rem; // Adjusted font size for better scalability
+  font-size: 1.5rem;
   text-align: center;
 `;
 
@@ -292,8 +228,8 @@ const Input = styled.input`
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem; // Adjusted font size
-  box-sizing: border-box; // Ensures padding and border are included in the element's total width and height
+  font-size: 1rem;
+  box-sizing: border-box;
 `;
 
 const Select = styled.select`
@@ -302,7 +238,7 @@ const Select = styled.select`
   margin-bottom: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem; // Adjusted font size
+  font-size: 1rem;
   box-sizing: border-box;
 `;
 
@@ -313,9 +249,9 @@ const Button = styled.button`
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 1rem; // Adjusted font size
+  font-size: 1rem;
   cursor: pointer;
-  margin-top: 10px; // Added margin for spacing
+  margin-top: 10px;
 
   &:disabled {
     background-color: #cccccc;
@@ -326,7 +262,7 @@ const Button = styled.button`
 const OtpContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px; // Added margin for spacing
+  margin-bottom: 15px;
 `;
 
 const OtpInput = styled(Input)`
@@ -336,18 +272,16 @@ const OtpInput = styled(Input)`
 
 const Error = styled.p`
   color: red;
-  text-align: center; // Centered text
+  text-align: center;
 `;
 
 const Success = styled.p`
   color: green;
-  text-align: center; // Centered text
+  text-align: center;
 `;
 
 const Timer = styled.p`
   text-align: center;
-  margin-top: 15px;
-  font-size: 0.875rem; // Adjusted font size
 `;
 
 export default Register;

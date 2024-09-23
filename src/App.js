@@ -6,6 +6,8 @@ import Register from './Pages/Register';
 import ForgotPassword from './Pages/ForgotPassword';
 import Mpage from './Pages/Mpage';
 import NotStoreCgpa from './Pages/NotStoreCgpa';
+import AddTeacher from './Admin/AddTeacher';
+import AdminLogin from './Admin/Login';
 const App = () => {
   return (
     <BrowserRouter>
@@ -16,6 +18,8 @@ const App = () => {
         <Route path= '/Register' element={<Register/>} />
        <Route path= '/Forgot-Password' element={<ForgotPassword/>} />
        <Route path= '/Main' element={<Mpage/>} />
+       <Route path= '/Admin-login' element={<AdminLogin/>} />
+       <Route path= '/Adminpanel' element={<AddTeacher/>} />
       
       </Routes>
     </BrowserRouter>

@@ -55,7 +55,7 @@ const CertificateUpload = () => {
         const response = await Api.post('/api/upload-certificate', { courseName, certificateUrl, reg });
         alert('Certificate link submitted successfully!');
       }
-      
+
       setCourseName('');
       setCertificateUrl('');
       setCurrentPage('show');
@@ -71,6 +71,19 @@ const CertificateUpload = () => {
     setCertificateUrl(cert.certificateUrl);
     setEditMode(true);
     setCurrentPage('upload');
+  };
+
+  const handleDeleteClick = async (certId) => {
+    if (window.confirm('Are you sure you want to delete this certificate?')) {
+      try {
+        await Api.delete(`/api/delete-certificate/${certId}`);
+        alert('Certificate deleted successfully!');
+        setUploadedCertificates(uploadedCertificates.filter(cert => cert._id !== certId)); // Update state
+      } catch (error) {
+        console.error('Error deleting certificate:', error);
+        alert('Error deleting certificate. Please try again.');
+      }
+    }
   };
 
   const handleUploadClick = () => setCurrentPage('upload');
@@ -140,6 +153,7 @@ const CertificateUpload = () => {
                   </TableData>
                   <TableData>
                     <EditButton onClick={() => handleEditClick(cert)}>Edit</EditButton>
+                    <DeleteButton onClick={() => handleDeleteClick(cert._id)}>Delete</DeleteButton>
                   </TableData>
                 </TableRow>
               ))}
@@ -259,6 +273,20 @@ const EditButton = styled.button`
 
   &:hover {
     background-color: #218838;
+  }
+`;
+
+const DeleteButton = styled.button`
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #c82333;
   }
 `;
 

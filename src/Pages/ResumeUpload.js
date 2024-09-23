@@ -9,11 +9,19 @@ const ResumeUpload = () => {
   const [currentPage, setCurrentPage] = useState('upload');
   const [editMode, setEditMode] = useState(false);
   const [editCert, setEditCert] = useState(null);
-  const userid = localStorage.getItem("CGPA-User");
 
-  const parsedUser = JSON.parse(userid);
+  // Parsing user data from localStorage
+  const userid = localStorage.getItem('CGPA-User');
+  let parsedUser;
+  try {
+    parsedUser = JSON.parse(userid);
+  } catch (error) {
+    console.error('Error parsing user data from localStorage:', error);
+  }
+
   const reg = parsedUser?.user?.Reg;
 
+  // Fetching certificates when the "show" page is active
   useEffect(() => {
     if (currentPage === 'show') {
       const fetchCertificates = async () => {
@@ -24,7 +32,8 @@ const ResumeUpload = () => {
           }
 
           const response = await Api.get(`/api/resume/${reg}`);
-          setUploadedCertificates(response.data.certificates || []);
+          const fetchedCertificates = response.data.certificates || [];
+          setUploadedCertificates(fetchedCertificates);
         } catch (error) {
           console.error('Error fetching certificates:', error);
         }
@@ -34,9 +43,31 @@ const ResumeUpload = () => {
     }
   }, [currentPage, reg]);
 
+  // Handlers for form input
   const handleUrlChange = (event) => setCertificateUrl(event.target.value);
   const handleCourseNameChange = (event) => setCourseName(event.target.value);
 
+  // Handler for deleting a resume
+  const handleDeleteClick = async (certId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this resume?');
+
+    if (confirmDelete) {
+      try {
+        await Api.delete(`/api/delete-resume/${certId}`);
+        alert('Resume deleted successfully!');
+
+        // Update the list after deletion
+        setUploadedCertificates((prevCertificates) =>
+          prevCertificates.filter((cert) => cert._id !== certId)
+        );
+      } catch (error) {
+        console.error('Error deleting resume:', error);
+        alert('Error deleting resume. Please try again.');
+      }
+    }
+  };
+
+  // Handler for submitting or editing a resume
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -47,15 +78,15 @@ const ResumeUpload = () => {
 
     try {
       if (editMode) {
-        const response = await Api.put(`/api/edit-Resume/${editCert._id}`, { courseName, certificateUrl, reg });
-        alert('resume updated successfully!');
+        await Api.put(`/api/edit-resume/${editCert._id}`, { courseName, certificateUrl, reg });
+        alert('Resume updated successfully!');
         setEditMode(false);
         setEditCert(null);
       } else {
-        const response = await Api.post('/api/upload-Resume', { courseName, certificateUrl, reg });
-        alert('resume link submitted successfully!');
+        await Api.post('/api/upload-resume', { courseName, certificateUrl, reg });
+        alert('Resume link submitted successfully!');
       }
-      
+
       setCourseName('');
       setCertificateUrl('');
       setCurrentPage('show');
@@ -65,6 +96,7 @@ const ResumeUpload = () => {
     }
   };
 
+  // Handler for editing a resume
   const handleEditClick = (cert) => {
     setEditCert(cert);
     setCourseName(cert.courseName);
@@ -73,6 +105,7 @@ const ResumeUpload = () => {
     setCurrentPage('upload');
   };
 
+  // Handlers for navigation buttons
   const handleUploadClick = () => setCurrentPage('upload');
   const handleShowClick = () => setCurrentPage('show');
 
@@ -80,10 +113,10 @@ const ResumeUpload = () => {
     <Container>
       <ButtonContainer>
         <NavButton onClick={handleUploadClick} active={currentPage === 'upload'}>
-          {editMode ? 'Edit Resume' : 'Upload resume'}
+          {editMode ? 'Edit Resume' : 'Upload Resume'}
         </NavButton>
         <NavButton onClick={handleShowClick} active={currentPage === 'show'}>
-          Show resume
+          Show Resumes
         </NavButton>
       </ButtonContainer>
 
@@ -93,7 +126,7 @@ const ResumeUpload = () => {
           <Form onSubmit={handleSubmit}>
             <FormGroup>
               <Label>
-              Resume Name based on company:
+                Resume Name based on company:
                 <Input
                   type="text"
                   value={courseName}
@@ -140,6 +173,7 @@ const ResumeUpload = () => {
                   </TableData>
                   <TableData>
                     <EditButton onClick={() => handleEditClick(cert)}>Edit</EditButton>
+                    <DeleteButton onClick={() => handleDeleteClick(cert._id)}>Delete</DeleteButton>
                   </TableData>
                 </TableRow>
               ))}
@@ -201,6 +235,21 @@ const SubmitButton = styled.button`
 
   &:hover {
     background-color: #0056b3;
+  }
+`;
+
+const DeleteButton = styled.button`
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+
+  &:hover {
+    background-color: #c82333;
   }
 `;
 

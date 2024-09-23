@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Api from '../Api/Api'; // Adjust the path according to your project structure
+import Api from '../Api/Api';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ Reg: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [otp, setOtp] = useState(Array(4).fill('')); // Adjusted to 4 digits
-  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState(Array(4).fill(''));
   const [showOtpForm, setShowOtpForm] = useState(false);
-  const [timer, setTimer] = useState(30); // Countdown timer in seconds
+  const [timer, setTimer] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
   const navigator = useNavigate();
 
@@ -22,19 +21,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await Api.post('/Auth/login', formData);
-      console.log(response);
+      const response = await Api.post('/Auth/login', { 
+        email: formData.email, 
+        password: formData.password 
+      });
 
       if (response.status === 200) {
         if (response.data.user.verified) {
           setSuccess('Login successful!');
-          navigator('/Main');
           localStorage.setItem('CGPA-User', JSON.stringify(response.data));
+
+          // Role-based navigation
+          const role = response.data.user.role;
+          if (role === 'admin') {
+            navigator('/Adminpanel');
+          } else if (role === 'user') {
+            navigator('/UserPage');
+          } else {
+            navigator('/Main');
+          }
         } else {
-          setOtpSent(true);
           setShowOtpForm(true);
           setSuccess('Your email is not verified. Please enter the OTP sent to your email.');
-          handleGenerateOtp();
+          await handleGenerateOtp();
         }
       } else {
         setError(response.data.message || 'Login failed');
@@ -47,7 +56,7 @@ const Login = () => {
 
   const handleGenerateOtp = async () => {
     try {
-      await Api.post('/Auth/generate-otp', { Reg: formData.Reg });
+      await Api.post('/Auth/generate-otp', { email: formData.email });
       alert('OTP sent');
       startTimer();
     } catch (error) {
@@ -62,7 +71,6 @@ const Login = () => {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
-
       if (value.length === 1 && index < otp.length - 1) {
         document.getElementById(`otp-input-${index + 1}`).focus();
       }
@@ -73,11 +81,11 @@ const Login = () => {
     e.preventDefault();
     const otpCode = otp.join('');
     try {
-      const response = await Api.post('/Auth/verify-otp', { Reg: formData.Reg, otp: otpCode });
+      const response = await Api.post('/Auth/verify-otp', { email: formData.email, otp: otpCode });
 
       if (response.status === 200) {
         setSuccess('Email verified successfully!');
-        navigator('/Login');
+        navigator('/Main');
       } else {
         setError(response.data.message || 'Invalid OTP');
       }
@@ -88,7 +96,7 @@ const Login = () => {
   };
 
   const startTimer = () => {
-    setTimer(30); // Reset timer to 30 seconds
+    setTimer(30);
     setTimerActive(true);
   };
 
@@ -100,8 +108,8 @@ const Login = () => {
       }, 1000);
     } else if (timer === 0) {
       clearInterval(countdown);
-      handleGenerateOtp(); // Resend OTP after the timer expires
-      setTimer(30); // Reset timer after OTP is resent
+      handleGenerateOtp();
+      setTimer(30);
     }
     return () => clearInterval(countdown);
   }, [timer, timerActive]);
@@ -114,10 +122,10 @@ const Login = () => {
           {error && <Error>{error}</Error>}
           {success && <Success>{success}</Success>}
           <Input
-            type="text"
-            name="Reg"
-            placeholder="Enter your Registration Number"
-            value={formData.Reg}
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
             onChange={handleChange}
             required
           />
@@ -133,6 +141,7 @@ const Login = () => {
           <Linker>
             <Link to="/Forgot-Password">Forgot Password</Link>
             <Link to="/Register">Register</Link>
+            <Link to="/Admin-login">Admin</Link>
           </Linker>
         </Form>
       ) : (
@@ -166,12 +175,12 @@ const Login = () => {
   );
 };
 
+// Styled components
 const FormContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
- 
   color: white;
 `;
 
