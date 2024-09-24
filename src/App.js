@@ -8,6 +8,8 @@ import Mpage from './Pages/Mpage';
 import NotStoreCgpa from './Pages/NotStoreCgpa';
 import AddTeacher from './Admin/AddTeacher';
 import AdminLogin from './Admin/Login';
+import LoginTeacher from './Teacher/LoginTeacher';
+import Dashboard from './Teacher/Dashboard';
 const App = () => {
   return (
     <HashRouter>
@@ -20,6 +22,8 @@ const App = () => {
        <Route path= '/Main' element={<Mpage/>} />
        <Route path= '/Admin-login' element={<AdminLogin/>} />
        <Route path= '/Adminpanel' element={<AddTeacher/>} />
+       <Route path= '/TeacherLogin' element={<LoginTeacher/>} />
+       <Route path= '/dashboard-teacher' element={<Dashboard/>} />
       
       </Routes>
     </HashRouter>

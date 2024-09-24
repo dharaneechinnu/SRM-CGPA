@@ -46,6 +46,12 @@ const AddTeacher = () => {
     }
   };
 
+  const handleLogout = () => {
+    // Clear any authentication data here (if applicable)
+    localStorage.clear(); // Clear local storage (modify if using context or Redux)
+    navigate('/login'); // Redirect to the login page
+  };
+
   return (
     <FormContainer>
       <Form onSubmit={handleSubmit}>
@@ -109,6 +115,7 @@ const AddTeacher = () => {
         </Select>
         
         <Button type="submit">Register Teacher</Button>
+        <LogoutButton type="button" onClick={handleLogout}>Logout</LogoutButton>
       </Form>
     </FormContainer>
   );
@@ -169,6 +176,22 @@ const Button = styled.button`
 
   &:hover {
     background-color: #0056b3;
+  }
+`;
+
+const LogoutButton = styled.button`
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #dc3545;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: #c82333;
   }
 `;
 

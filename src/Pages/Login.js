@@ -142,6 +142,7 @@ const Login = () => {
             <Link to="/Forgot-Password">Forgot Password</Link>
             <Link to="/Register">Register</Link>
             <Link to="/Admin-login">Admin</Link>
+            <Link to="/TeacherLogin">Teacher</Link>
           </Linker>
         </Form>
       ) : (
