@@ -10,7 +10,7 @@ import AddTeacher from './Admin/AddTeacher';
 import AdminLogin from './Admin/Login';
 const App = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/cgpa" element={<NotStoreCgpa />} />
@@ -22,7 +22,7 @@ const App = () => {
        <Route path= '/Adminpanel' element={<AddTeacher/>} />
       
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
