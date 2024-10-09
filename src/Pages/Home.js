@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -18,6 +18,8 @@ import {
   Divider,
   SimpleGrid,
 } from '@chakra-ui/react';
+import { motion } from 'framer-motion'; // Import Framer Motion for animations
+import { FaUserEdit } from 'react-icons/fa'; // Importing animated icon
 import { useNavigate } from 'react-router-dom';
 import Api from '../Api/Api';
 import male from '../Assest/male.jpg';
@@ -53,8 +55,6 @@ const Home = () => {
       fetchStudentDetails();
     }
   }, [reg]);
-
-  
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -120,19 +120,55 @@ const Home = () => {
 
   return (
     <ChakraProvider>
-      <Box p={{ base: 4, md: 8 }} maxW="7xl" mx="auto" bg="gray.50" borderRadius="lg" boxShadow="lg">
+      <Box
+        p={{ base: 4, md: 8 }}
+        maxW="7xl"
+        mx="auto"
+        bg="gray.50"
+        borderRadius="lg"
+        boxShadow="lg"
+        as={motion.div} // Adding motion for animations
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
         <Flex justify="space-between" align="center" mb={6}>
-          <Button colorScheme="green" onClick={handleEdit}>
+          <Button
+            leftIcon={<FaUserEdit />} // Add an animated icon
+            colorScheme="green"
+            onClick={handleEdit}
+            as={motion.button} // Adding motion to button
+            whileHover={{ scale: 1.1 }} // Scaling on hover
+          >
             Edit
           </Button>
-         
         </Flex>
 
-        <Heading as="h1" size="2xl" textAlign="center" my={6} color="blue.600">
+        <Heading
+          as={motion.h1}
+          size="2xl"
+          textAlign="center"
+          my={6}
+          color="blue.600"
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1.2 }}
+        >
           Student Dashboard
         </Heading>
 
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} p={5} bg="white" borderRadius="lg" boxShadow="base">
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }}
+          spacing={10}
+          p={5}
+          bg="white"
+          borderRadius="lg"
+          boxShadow="base"
+          as={motion.div}
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.8 }}
+        >
           <VStack spacing={6}>
             <Avatar size="2xl" src={genderImage} />
             <Text fontSize="2xl" fontWeight="bold" color="gray.700">
@@ -188,7 +224,14 @@ const Home = () => {
             </FormControl>
 
             {isEditing && (
-              <Button colorScheme="blue" onClick={handleSaveChanges} mt={4} width="full">
+              <Button
+                colorScheme="blue"
+                onClick={handleSaveChanges}
+                mt={4}
+                width="full"
+                as={motion.button} // Adding motion to save button
+                whileHover={{ scale: 1.1 }} // Button grows slightly on hover
+              >
                 Save Changes
               </Button>
             )}
@@ -197,7 +240,16 @@ const Home = () => {
 
         <Divider my={8} />
 
-        <Box bg="white" p={5} borderRadius="lg" boxShadow="base">
+        <Box
+          bg="white"
+          p={5}
+          borderRadius="lg"
+          boxShadow="base"
+          as={motion.div}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2 }}
+        >
           <Heading as="h2" size="lg" mb={6} color="blue.600">
             Academic Information
           </Heading>

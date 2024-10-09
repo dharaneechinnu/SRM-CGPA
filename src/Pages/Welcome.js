@@ -1,6 +1,27 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+// Animations
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const slideIn = keyframes`
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
 
 // Styled Components
 const WelcomeContainer = styled.div`
@@ -13,15 +34,17 @@ const WelcomeContainer = styled.div`
   background-color: black;
   transition: background-color 0.3s ease;
   padding: 20px;
+  animation: ${fadeIn} 1.5s ease-in-out;  /* Fade-in effect for the container */
 `;
 
 const Slogan = styled.h1`
   font-family: 'Roboto', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
-  color: ${(props) => props.theme.text};
+  color: ${(props) => props.theme.text || 'white'};
   text-align: center;
   margin-bottom: 40px;
+  animation: ${slideIn} 1s ease-out; /* Slide-in effect for slogan */
 
   @media (min-width: 768px) {
     font-size: 3rem;  // Larger font size for tablets and desktops
@@ -36,6 +59,7 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  animation: ${slideIn} 1.5s ease-out; /* Slide-in effect for buttons, delayed slightly */
 `;
 
 const OptionButton = styled.button`
@@ -44,14 +68,14 @@ const OptionButton = styled.button`
   font-weight: bold;
   color: black;
   background-color: white;
-
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
 
   &:hover {
-    background-color: ${(props) => props.theme.buttonHoverBackground};
+    background-color: ${(props) => props.theme.buttonHoverBackground || '#ccc'};
+    transform: translateY(-5px); /* Button lift effect on hover */
   }
 
   @media (max-width: 600px) {
@@ -80,7 +104,7 @@ const Welcome = () => {
 
   return (
     <WelcomeContainer>
-      <Slogan>Simplify Your Success,<br />One CGPA at a Time.</Slogan>
+      <Slogan>Your Academic Journey, <br />Made Effortless.</Slogan>
       <ButtonContainer>
         <OptionButton onClick={handleLogin}>Login</OptionButton>
         <OptionButton onClick={handleCGPACalculator}>CGPA Calculator</OptionButton>
