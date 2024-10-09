@@ -8,10 +8,14 @@ import Mpage from './Pages/Mpage';
 import NotStoreCgpa from './Pages/NotStoreCgpa';
 import AddTeacher from './Admin/AddTeacher';
 import AdminLogin from './Admin/Login';
-import LoginTeacher from './Teacher/LoginTeacher';
-import Dashboard from './Teacher/Dashboard';
+import LoginTeacher from './Teacher/Pages/LoginTeacher';
+import Dashboard from './Teacher/Pages/Dashboard';
+import LeftNav from './Teacher/Compoents/LeftNav';
+import { ChakraProvider } from '@chakra-ui/react'
+
 const App = () => {
   return (
+   
     <HashRouter>
       <Routes>
         <Route path="/" element={<Welcome />} />
@@ -20,13 +24,21 @@ const App = () => {
         <Route path= '/Register' element={<Register/>} />
        <Route path= '/Forgot-Password' element={<ForgotPassword/>} />
        <Route path= '/Main' element={<Mpage/>} />
+
+
+
        <Route path= '/Admin-login' element={<AdminLogin/>} />
        <Route path= '/Adminpanel' element={<AddTeacher/>} />
+
+
+
        <Route path= '/TeacherLogin' element={<LoginTeacher/>} />
        <Route path= '/dashboard-teacher' element={<Dashboard/>} />
+       <Route path='/teacherMain' element={<LeftNav/>}/>
       
       </Routes>
     </HashRouter>
+   
   );
 };
 

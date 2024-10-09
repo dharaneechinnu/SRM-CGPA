@@ -1,5 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Heading,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+  Flex,
+  IconButton,
+  VStack,
+  Stack,
+  HStack,
+  ChakraProvider,
+} from '@chakra-ui/react';
+import { EditIcon, DeleteIcon, AddIcon } from '@chakra-ui/icons';
 import Api from '../Api/Api';
 
 const CertificateUpload = () => {
@@ -9,8 +30,9 @@ const CertificateUpload = () => {
   const [currentPage, setCurrentPage] = useState('upload');
   const [editMode, setEditMode] = useState(false);
   const [editCert, setEditCert] = useState(null);
-  const userid = localStorage.getItem("CGPA-User");
+  const toast = useToast();
 
+  const userid = localStorage.getItem("CGPA-User");
   const parsedUser = JSON.parse(userid);
   const reg = parsedUser?.user?.Reg;
 
@@ -18,11 +40,6 @@ const CertificateUpload = () => {
     if (currentPage === 'show') {
       const fetchCertificates = async () => {
         try {
-          if (!reg) {
-            console.error('Registration number is not defined.');
-            return;
-          }
-
           const response = await Api.get(`/api/${reg}`);
           setUploadedCertificates(response.data.certificates || []);
         } catch (error) {
@@ -34,26 +51,41 @@ const CertificateUpload = () => {
     }
   }, [currentPage, reg]);
 
-  const handleUrlChange = (event) => setCertificateUrl(event.target.value);
-  const handleCourseNameChange = (event) => setCourseName(event.target.value);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!certificateUrl || !courseName) {
-      alert('Please enter a URL and course name.');
+      toast({
+        title: 'Error',
+        description: 'Please enter both course name and certificate URL',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
       return;
     }
 
     try {
       if (editMode) {
-        const response = await Api.put(`/api/edit-certificate/${editCert._id}`, { courseName, certificateUrl, reg });
-        alert('Certificate updated successfully!');
+        await Api.put(`/api/edit-certificate/${editCert._id}`, { courseName, certificateUrl, reg });
+        toast({
+          title: 'Success',
+          description: 'Certificate updated successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
         setEditMode(false);
         setEditCert(null);
       } else {
-        const response = await Api.post('/api/upload-certificate', { courseName, certificateUrl, reg });
-        alert('Certificate link submitted successfully!');
+        await Api.post('/api/upload-certificate', { courseName, certificateUrl, reg });
+        toast({
+          title: 'Success',
+          description: 'Certificate submitted successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       }
 
       setCourseName('');
@@ -61,7 +93,13 @@ const CertificateUpload = () => {
       setCurrentPage('show');
     } catch (error) {
       console.error('Error submitting certificate:', error);
-      alert('Error submitting certificate. Please try again.');
+      toast({
+        title: 'Error',
+        description: 'Failed to submit the certificate',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -77,11 +115,23 @@ const CertificateUpload = () => {
     if (window.confirm('Are you sure you want to delete this certificate?')) {
       try {
         await Api.delete(`/api/delete-certificate/${certId}`);
-        alert('Certificate deleted successfully!');
-        setUploadedCertificates(uploadedCertificates.filter(cert => cert._id !== certId)); // Update state
+        toast({
+          title: 'Deleted',
+          description: 'Certificate deleted successfully',
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+        });
+        setUploadedCertificates(uploadedCertificates.filter(cert => cert._id !== certId));
       } catch (error) {
         console.error('Error deleting certificate:', error);
-        alert('Error deleting certificate. Please try again.');
+        toast({
+          title: 'Error',
+          description: 'Failed to delete the certificate',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
       }
     }
   };
@@ -90,204 +140,97 @@ const CertificateUpload = () => {
   const handleShowClick = () => setCurrentPage('show');
 
   return (
-    <Container>
-      <ButtonContainer>
-        <NavButton onClick={handleUploadClick} active={currentPage === 'upload'}>
+    <ChakraProvider>
+    <Box p={6} maxW="800px" mx="auto">
+      <Flex justify="center" mb={4}>
+        <Button
+          colorScheme={currentPage === 'upload' ? 'blue' : 'gray'}
+          onClick={handleUploadClick}
+          leftIcon={<AddIcon />}
+          mr={3}
+        >
           {editMode ? 'Edit Certificate' : 'Upload Certificate'}
-        </NavButton>
-        <NavButton onClick={handleShowClick} active={currentPage === 'show'}>
+        </Button>
+        <Button
+          colorScheme={currentPage === 'show' ? 'blue' : 'gray'}
+          onClick={handleShowClick}
+        >
           Show Certificates
-        </NavButton>
-      </ButtonContainer>
+        </Button>
+      </Flex>
 
       {currentPage === 'upload' ? (
-        <>
-          <Title>{editMode ? 'Edit Certificate Link' : 'Submit Certificate Link'}</Title>
-          <Form onSubmit={handleSubmit}>
-            <FormGroup>
-              <Label>
-                Course Name:
+        <VStack spacing={4} align="start">
+          <Heading size="lg">{editMode ? 'Edit Certificate' : 'Upload Certificate'}</Heading>
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Course Name</FormLabel>
                 <Input
-                  type="text"
+                  placeholder="Enter course name"
                   value={courseName}
-                  onChange={handleCourseNameChange}
-                  required
+                  onChange={(e) => setCourseName(e.target.value)}
                 />
-              </Label>
-            </FormGroup>
-            <FormGroup>
-              <Label>
-                Certificate URL:
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Certificate URL</FormLabel>
                 <Input
-                  type="text"
+                  placeholder="Enter certificate URL"
                   value={certificateUrl}
-                  onChange={handleUrlChange}
-                  required
+                  onChange={(e) => setCertificateUrl(e.target.value)}
                 />
-              </Label>
-            </FormGroup>
-            <SubmitButton type="submit">
-              {editMode ? 'Update' : 'Submit'}
-            </SubmitButton>
-          </Form>
-        </>
+              </FormControl>
+              <Button type="submit" colorScheme="blue">
+                {editMode ? 'Update' : 'Submit'}
+              </Button>
+            </Stack>
+          </form>
+        </VStack>
       ) : (
-        <>
-          <SectionTitle>Submitted Certificates</SectionTitle>
-          <CertificatesTable>
-            <thead>
-              <TableRow>
-                <TableHeader>Course Name</TableHeader>
-                <TableHeader>Certificate Link</TableHeader>
-                <TableHeader>Actions</TableHeader>
-              </TableRow>
-            </thead>
-            <tbody>
+        <Box>
+          <Heading size="lg" mb={4}>Submitted Certificates</Heading>
+          <Table variant="striped" colorScheme="teal">
+            <Thead>
+              <Tr>
+                <Th>Course Name</Th>
+                <Th>Certificate Link</Th>
+                <Th>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
               {uploadedCertificates.map((cert, index) => (
-                <TableRow key={index}>
-                  <TableData>{cert.courseName}</TableData>
-                  <TableData>
+                <Tr key={index}>
+                  <Td>{cert.courseName}</Td>
+                  <Td>
                     <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">
                       View Certificate
                     </a>
-                  </TableData>
-                  <TableData>
-                    <EditButton onClick={() => handleEditClick(cert)}>Edit</EditButton>
-                    <DeleteButton onClick={() => handleDeleteClick(cert._id)}>Delete</DeleteButton>
-                  </TableData>
-                </TableRow>
+                  </Td>
+                  <Td>
+                    <HStack>
+                      <IconButton
+                        icon={<EditIcon />}
+                        colorScheme="green"
+                        onClick={() => handleEditClick(cert)}
+                        aria-label="Edit Certificate"
+                      />
+                      <IconButton
+                        icon={<DeleteIcon />}
+                        colorScheme="red"
+                        onClick={() => handleDeleteClick(cert._id)}
+                        aria-label="Delete Certificate"
+                      />
+                    </HStack>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </CertificatesTable>
-        </>
+            </Tbody>
+          </Table>
+        </Box>
       )}
-    </Container>
+    </Box>
+    </ChakraProvider>
   );
 };
-
-// Styled Components
-const Container = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  margin-bottom: 20px;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 15px;
-  width: 100%;
-  max-width: 500px;
-`;
-
-const Label = styled.label`
-  display: flex;
-  flex-direction: column;
-  font-size: 16px;
-`;
-
-const Input = styled.input`
-  margin-top: 5px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
-const SubmitButton = styled.button`
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 20px;
-  margin-bottom: 15px;
-`;
-
-const CertificatesTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-`;
-
-const TableRow = styled.tr`
-  border-bottom: 1px solid #ddd;
-`;
-
-const TableHeader = styled.th`
-  padding: 10px;
-  background-color: #f4f4f4;
-  text-align: left;
-`;
-
-const TableData = styled.td`
-  padding: 10px;
-`;
-
-const ButtonContainer = styled.div`
-  margin-bottom: 20px;
-`;
-
-const NavButton = styled.button`
-  background-color: ${(props) => (props.active ? '#007bff' : '#6c757d')};
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin: 0 10px;
-
-  &:hover {
-    background-color: ${(props) => (props.active ? '#0056b3' : '#5a6268')};
-  }
-`;
-
-const EditButton = styled.button`
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  font-size: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #218838;
-  }
-`;
-
-const DeleteButton = styled.button`
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  font-size: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #c82333;
-  }
-`;
 
 export default CertificateUpload;
