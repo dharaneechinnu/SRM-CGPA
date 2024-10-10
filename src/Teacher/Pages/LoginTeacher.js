@@ -10,28 +10,29 @@ const LoginTeacher = () => {
   const navigate = useNavigate();
 
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
-
-  try {
-    const response = await Api.post('/teacher/login', { mail: email, password });
-    console.log('Login successful:', response.data);
-   
-    if(response.status === 200) {
-      // Store the object in localStorage as a string
-      localStorage.setItem('teacher', JSON.stringify(response.data));
-      navigate('/teacherMain');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+  
+    try {
+      const response = await Api.post('/teacher/login', { email, password }); // Send 'email' instead of 'mail'
+      console.log('Login successful:', response.data);
+     
+      if(response.status === 200) {
+        // Store the object in localStorage as a string
+        localStorage.setItem('teacher', JSON.stringify(response.data));
+        navigate('/teacherMain');
+      }
+     
+    } catch (error) {
+      setError(error.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-   
-  } catch (error) {
-    setError(error.response?.data?.message || 'An error occurred. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
+  
+  
 
   return (
     <div style={styles.container}>

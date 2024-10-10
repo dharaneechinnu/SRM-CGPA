@@ -29,7 +29,7 @@ const LeftNav = () => {
     if (storedTeacher && storedTeacher.user) {
       setTeacherInfo({
         name: storedTeacher.user.name || 'No Name',
-        email: storedTeacher.user.mail || 'No Email',
+        email: storedTeacher.user.email || 'No Email',
       });
     }
 

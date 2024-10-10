@@ -32,8 +32,7 @@ const Register = () => {
       }, 1000);
     } else if (timer === 0) {
       clearInterval(countdown);
-      handleGenerateOtp();
-      setTimer(30);
+      setTimerActive(false); // Don't automatically resend OTP
     }
     return () => clearInterval(countdown);
   }, [timer, timerActive]);
@@ -146,14 +145,13 @@ const Register = () => {
             ))}
           </Select>
           <Select name="section" value={formData.section} onChange={handleChange} required>
-  <option value="" disabled>Select Section</option>
-  {[...Array(26)].map((_, index) => (
-    <option key={String.fromCharCode(65 + index)} value={String.fromCharCode(65 + index)}>
-      {String.fromCharCode(65 + index)}
-    </option>
-  ))}
-</Select>
-
+            <option value="" disabled>Select Section</option>
+            {[...Array(26)].map((_, index) => (
+              <option key={String.fromCharCode(65 + index)} value={String.fromCharCode(65 + index)}>
+                {String.fromCharCode(65 + index)}
+              </option>
+            ))}
+          </Select>
           <Select name="gender" value={formData.gender} onChange={handleChange} required>
             <option value="" disabled>Select Gender</option>
             <option value="male">Male</option>
