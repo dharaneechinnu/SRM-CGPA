@@ -40,9 +40,45 @@ const CalCpga = () => {
   const toast = useToast();
   const bgColor = useColorModeValue('gray.50', 'gray.900');
 
+  // Fetch the user ID and registration number from localStorage
   const userid = localStorage.getItem("CGPA-User");
   const parsedUser = JSON.parse(userid || '{}');
   const reg = parsedUser?.user?.Reg;
+
+  // Fetch CGPA and SGPA records on component mount
+  useEffect(() => {
+    fetchCGPA();
+    fetchSGPARecords(); // Fetch updated SGPA records
+  }, [reg]);
+
+  const fetchSGPARecords = async () => {
+    try {
+      const response = await Api.get(`/api/sgpa/${reg}`);
+      if (response.status === 200) {
+        setSgpaRecords(response.data.sgpas || []);
+        console.log(response.data.sgpas); // Debugging: check the structure of the response
+      } else {
+        console.error('Failed to fetch SGPA records:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching SGPA records:', error);
+    }
+  };
+  
+
+  // Fetch CGPA
+  const fetchCGPA = async () => {
+    try {
+      const response = await Api.get(`/api/cgpa/${reg}`);
+      if (response.status === 200) {
+        setCgpa(response.data.cgpa ? response.data.cgpa.toFixed(2) : null); // Set CGPA
+      } else {
+        console.error('Failed to fetch CGPA:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching CGPA:', error);
+    }
+  };
 
   // Handle adding new course input fields
   const handleAddCourse = () => {
@@ -105,8 +141,7 @@ const CalCpga = () => {
           duration: 3000,
           isClosable: true,
         });
-        fetchCGPA();
-        fetchSGPARecords(); // Fetch updated SGPA records
+        fetchSGPARecords(); // Fetch updated SGPA records after saving
       } else {
         console.error('Failed to save SGPA');
       }
@@ -114,34 +149,6 @@ const CalCpga = () => {
       console.error('Error saving SGPA:', error);
     } finally {
       setIsConfirmVisible(false);
-    }
-  };
-
-  // Fetch SGPA records
-  const fetchSGPARecords = async () => {
-    try {
-      const response = await Api.get(`/api/sgpa/${reg}`);
-      if (response.status === 200) {
-        setSgpaRecords(response.data.sgpaRecords || []);
-      } else {
-        console.error('Failed to fetch SGPA records:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching SGPA records:', error);
-    }
-  };
-
-  // Fetch CGPA
-  const fetchCGPA = async () => {
-    try {
-      const response = await Api.get(`/api/cgpa/${reg}`);
-      if (response.status === 200) {
-        setCgpa(response.data.cgpa ? response.data.cgpa.toFixed(2) : null); // Set CGPA
-      } else {
-        console.error('Failed to fetch CGPA:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching CGPA:', error);
     }
   };
 
@@ -165,10 +172,6 @@ const CalCpga = () => {
       console.error('Error deleting SGPA:', error);
     }
   };
-
-  useEffect(() => {
-    fetchSGPARecords(); // Load SGPA records on component mount
-  }, [reg]);
 
   return (
     <ChakraProvider>
@@ -257,33 +260,34 @@ const CalCpga = () => {
           </Heading>
 
           {sgpaRecords?.length > 0 ? (
-            <VStack spacing={4}>
-              {sgpaRecords.map(record => (
-                <Flex
-                  key={record.id}
-                  justifyContent="space-between"
-                  alignItems="center"
-                  bg="gray.100"
-                  p={4}
-                  borderRadius="lg"
-                  w="100%"
-                  shadow="md"
-                >
-                  <Text fontSize="lg">Semester {record.semester}: SGPA {record.sgpa}</Text>
-                  <IconButton
-                    icon={<DeleteIcon />}
-                    colorScheme="red"
-                    onClick={() => deleteSGPA(record.id)}
-                    aria-label="Delete SGPA"
-                  />
-                </Flex>
-              ))}
-            </VStack>
-          ) : (
-            <Text textAlign="center" fontSize="lg">
-              No SGPA records available.
-            </Text>
-          )}
+  <VStack spacing={4}>
+    {sgpaRecords.map(record => (
+      <Flex
+        key={record._id} // Make sure this matches your backend response field (e.g., _id or id)
+        justifyContent="space-between"
+        alignItems="center"
+        bg="gray.100"
+        p={4}
+        borderRadius="lg"
+        w="100%"
+        shadow="md"
+      >
+        <Text fontSize="lg">Semester {record.semester}: SGPA {record.sgpa}</Text>
+        <IconButton
+          icon={<DeleteIcon />}
+          colorScheme="red"
+          onClick={() => deleteSGPA(record._id)} // Use _id or id based on what is returned by the backend
+          aria-label="Delete SGPA"
+        />
+      </Flex>
+    ))}
+  </VStack>
+) : (
+  <Text textAlign="center" fontSize="lg">
+    No SGPA records available.
+  </Text>
+)}
+
         </Box>
       </Flex>
     </ChakraProvider>
