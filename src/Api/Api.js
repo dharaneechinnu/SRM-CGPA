@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const Api = axios.create({
-  baseURL: 'https://cgpa-backend-82qm.onrender.com'
+  baseURL: 'http://localhost:3500'
 });
 
 export default Api;

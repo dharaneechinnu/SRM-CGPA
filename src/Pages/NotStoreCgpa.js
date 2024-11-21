@@ -225,7 +225,7 @@ const RemoveButton = styled.button`
 const Result = styled.div`
   margin-top: 20px;
   font-size: 1.2rem;
-  color: #fff;
+  color: black;
 `;
 
 export default NotStoreCgpa;

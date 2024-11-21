@@ -35,7 +35,7 @@ const Tracker = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const sgpaResponse = await Api.get(`/api/sgpas/${reg}`);
+        const sgpaResponse = await Api.get(`/api/sgpa/${reg}`);
         if (sgpaResponse.status === 200 && Array.isArray(sgpaResponse.data.sgpas)) {
           setSemesterData(sgpaResponse.data.sgpas);
         } else {
